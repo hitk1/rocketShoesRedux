@@ -1,88 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { MdShoppingCart } from 'react-icons/md'
 
 import { ProductList } from './styles';
+import api from '../../services/api'
+import { formatPrice } from '../../util/format'
 
 export default function Home() {
+
+    const [products, setProducts] = useState([])
+
+    const formatCurrency = useCallback((price) => formatPrice(price), [])
+
+    useEffect(() => {
+        async function getApiData() {
+            const response = await api.get('products')
+            setProducts(response.data)
+        }
+
+        getApiData()
+    }, [])
+
     return (
         <ProductList>
-            <li>
-                <img src="https://static.netshoes.com.br/produtos/tenis-mizuno-atlas-masculino/20/D16-4397-120/D16-4397-120_detalhe1.jpg?ts=1580812901?resize=280:280"
-                alt="Tenis" />
+            {products.map(product => (
+                <li key={product.id}>
+                    <img src={product.image}
+                        alt={product.title} />
 
-                <strong>Tênis exemplo</strong>
-                <span>R$ 129,99</span>
+                    <strong>{product.title}</strong>
+                    <span>{formatCurrency(product.price)}</span>
 
-                <button type='button'>
-                    <div>
-                        <MdShoppingCart size={16} color="#FFF" /> 3
+                    <button type='button'>
+                        <div>
+                            <MdShoppingCart size={16} color="#FFF" /> 3
                     </div>
 
-                    <span>ADICIONAR AO CARRINHO</span>
-                </button>
-            </li>
-            <li>
-                <img src="https://static.netshoes.com.br/produtos/tenis-mizuno-atlas-masculino/20/D16-4397-120/D16-4397-120_detalhe1.jpg?ts=1580812901?resize=280:280"
-                alt="Tenis" />
+                        <span>ADICIONAR AO CARRINHO</span>
+                    </button>
+                </li>
+            ))}
 
-                <strong>Tênis exemplo</strong>
-                <span>R$ 129,99</span>
-
-                <button type='button'>
-                    <div>
-                        <MdShoppingCart size={16} color="#FFF" /> 3
-                    </div>
-
-                    <span>ADICIONAR AO CARRINHO</span>
-                </button>
-            </li>
-            <li>
-                <img src="https://static.netshoes.com.br/produtos/tenis-mizuno-atlas-masculino/20/D16-4397-120/D16-4397-120_detalhe1.jpg?ts=1580812901?resize=280:280"
-                alt="Tenis" />
-
-                <strong>Tênis exemplo</strong>
-                <span>R$ 129,99</span>
-
-                <button type='button'>
-                    <div>
-                        <MdShoppingCart size={16} color="#FFF" /> 3
-                    </div>
-
-                    <span>ADICIONAR AO CARRINHO</span>
-                </button>
-            </li>
-            <li>
-                <img src="https://static.netshoes.com.br/produtos/tenis-mizuno-atlas-masculino/20/D16-4397-120/D16-4397-120_detalhe1.jpg?ts=1580812901?resize=280:280"
-                alt="Tenis" />
-
-                <strong>Tênis exemplo</strong>
-                <span>R$ 129,99</span>
-
-                <button type='button'>
-                    <div>
-                        <MdShoppingCart size={16} color="#FFF" /> 3
-                    </div>
-
-                    <span>ADICIONAR AO CARRINHO</span>
-                </button>
-            </li>
-            <li>
-                <img src="https://static.netshoes.com.br/produtos/tenis-mizuno-atlas-masculino/20/D16-4397-120/D16-4397-120_detalhe1.jpg?ts=1580812901?resize=280:280"
-                alt="Tenis" />
-
-                <strong>Tênis exemplo</strong>
-                <span>R$ 129,99</span>
-
-                <button type='button'>
-                    <div>
-                        <MdShoppingCart size={16} color="#FFF" /> 3
-                    </div>
-
-                    <span>ADICIONAR AO CARRINHO</span>
-                </button>
-            </li>
-            
-            
         </ProductList>
     );
 }
