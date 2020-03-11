@@ -1,18 +1,33 @@
-import React, {useCallback} from 'react';
+import React, { useCallback } from 'react';
 import { MdRemoveCircleOutline, MdAddCircleOutline, MdDelete } from 'react-icons/md'
 
 import { Container, ProductTable, Total } from './styles';
 import { useSelector, useDispatch } from 'react-redux';
 import { formatPrice } from '../../util/format';
-import { removeFromCart } from '../../store/modules/cart/reducer'
+import { removeFromCart, updateAmount } from '../../store/modules/cart/reducer'
 
 export default function Cart() {
 
     const dispatch = useDispatch()
-    const products = useSelector(state => state.cart, [])
     const formatCurrency = useCallback(price => formatPrice(price), [])
 
+    /*
+        Hook do reactRedux usado para recuperar os dados armazenados no estado do redux
+        neste caso, [products] será uma cópia de todos os produtos do estado com um attr novo [subtotal]
+        que é calculado toda vez que o estado do redux for alterado (já que a ação de incrementar e decrementar cada item do carrinho,
+            também está sendo feito utilizando o estado do redux)
+    */
+    const products = useSelector(state => state.cart.map(product => ({
+        ...product, subtotal: formatCurrency(product.price * product.amount)
+    })))
+
+    //Caso semelhante, o calculo do total é refeito toda vez que o estado do redux for alterado (livrando varios render da aplicação)
+    const total = useSelector(state => formatCurrency(state.cart.reduce((total, product) => total + product.price * product.amount, 0)))
+
     const handleRemoveFromCart = useCallback(productId => dispatch(removeFromCart(productId)))
+
+    const increment = useCallback(product => dispatch(updateAmount(product.id, product.amount + 1)))
+    const decrement = useCallback(product => dispatch(updateAmount(product.id, product.amount - 1)))
 
     return (
         <Container>
@@ -28,7 +43,7 @@ export default function Cart() {
                 </thead>
                 <tbody>
                     {products.map(product => (
-                        <tr>
+                        <tr key={product.id}>
                             <td>
                                 <img
                                     src={product.image}
@@ -40,17 +55,17 @@ export default function Cart() {
                             </td>
                             <td>
                                 <div>
-                                    <button type="button">
+                                    <button type="button" onClick={() => decrement(product)}>
                                         <MdRemoveCircleOutline size={20} color="#7150c1" />
                                     </button>
                                     <input type="number" readOnly value={product.amount} />
-                                    <button type="button">
+                                    <button type="button" onClick={() => increment(product)}>
                                         <MdAddCircleOutline size={20} color="#7150c1" />
                                     </button>
                                 </div>
                             </td>
                             <td>
-                                <strong>R$ 259,80</strong>
+                                <strong>{product.subtotal}</strong>
                             </td>
                             <td>
                                 <button type="button" onClick={() => handleRemoveFromCart(product.id)}>
@@ -68,7 +83,7 @@ export default function Cart() {
 
                 <Total>
                     <span>TOTAL</span>
-                    <span>R$1.920,28</span>
+                    <strong>{total}</strong>
                 </Total>
             </footer>
         </Container>

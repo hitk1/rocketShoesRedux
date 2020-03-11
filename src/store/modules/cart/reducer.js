@@ -6,7 +6,7 @@ import produce from 'immer'
  */
 export default function cart(state = [], { type, data }) {
     switch (type){
-        case 'ADD_TO_CART':
+        case 'ADD_TO_CART_SUCCESS':
             /*
                 produce é uma função da lib [immer] que facilita a manipulação do estado do reducer
                 neste caso, na ação de adicionar ao carrinho, verifica-se primeiro se ja existe o produto no carrinho,
@@ -24,6 +24,7 @@ export default function cart(state = [], { type, data }) {
                 [draft] contém todos os objetos do estado do reducer
                 neste caso, esta sendo feito uma busca do indice pelo id do produto
                 */
+               console.log('entrou na action')
                 const productIndex = draft.findIndex(product => product.id === data.id)
 
                 //Se ja existir o produto dentro deste estado, a quantidade [amount] é incrementada
@@ -43,6 +44,19 @@ export default function cart(state = [], { type, data }) {
                 if(productIndex >= 0)
                     draft.splice(productIndex, 1)
             })
+
+        case 'UPDATE_AMOUNT': {
+            //Se a quantidade do carrinho for 1, o item não é decrementado
+            if(data.amount <= 0)
+                return state
+            else
+                return produce(state, draft => {
+                    const productIndex = draft.findIndex(product => product.id === data.productId)
+
+                    if(productIndex >= 0)
+                        draft[productIndex].amount = Number(data.amount)
+                })
+        }
         default:
             return state
     }
@@ -54,12 +68,22 @@ export default function cart(state = [], { type, data }) {
     que ja vem descrito nessa função por padrão,
     para usar é só chamar o useDispatch de react-redux
 */
-export const addToCart = product => ({
-    type: 'ADD_TO_CART',
+export const addToCartRequest = id => ({
+    type: 'ADD_TO_CART_REQUEST',
+    data: id
+})
+
+export const addToCartSuccess = product => ({
+    type: 'ADD_TO_CART_SUCCESS',
     data: product
 })
 
 export const removeFromCart = productId => ({
     type: 'REMOVE_FROM_CART',
     data: productId
+})
+
+export const updateAmount = (productId, amount) => ({
+    type: 'UPDATE_AMOUNT',
+    data: { productId, amount }
 })
