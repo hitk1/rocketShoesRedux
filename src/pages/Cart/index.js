@@ -4,7 +4,7 @@ import { MdRemoveCircleOutline, MdAddCircleOutline, MdDelete } from 'react-icons
 import { Container, ProductTable, Total } from './styles';
 import { useSelector, useDispatch } from 'react-redux';
 import { formatPrice } from '../../util/format';
-import { removeFromCart, updateAmount } from '../../store/modules/cart/reducer'
+import { removeFromCart, updateAmountRequest } from '../../store/modules/cart/reducer'
 
 export default function Cart() {
 
@@ -26,8 +26,8 @@ export default function Cart() {
 
     const handleRemoveFromCart = useCallback(productId => dispatch(removeFromCart(productId)))
 
-    const increment = useCallback(product => dispatch(updateAmount(product.id, product.amount + 1)))
-    const decrement = useCallback(product => dispatch(updateAmount(product.id, product.amount - 1)))
+    const increment = useCallback(product => dispatch(updateAmountRequest(product.id, product.amount + 1)))
+    const decrement = useCallback(product => dispatch(updateAmountRequest(product.id, product.amount - 1)))
 
     return (
         <Container>

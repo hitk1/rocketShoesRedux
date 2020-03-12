@@ -5,7 +5,7 @@ import produce from 'immer'
     DEVE SER INICIALIZADO COMO VAZIO (salvo os casos onde o reducer, por padrão, recebe um valor fixo em específico)
  */
 export default function cart(state = [], { type, data }) {
-    switch (type){
+    switch (type) {
         case 'ADD_TO_CART_SUCCESS':
             /*
                 produce é uma função da lib [immer] que facilita a manipulação do estado do reducer
@@ -20,42 +20,42 @@ export default function cart(state = [], { type, data }) {
                 o 2 é o rascunho no qual serão feitas as alterações do estado [draft]
             */
             return produce(state, draft => {
-                /* 
-                [draft] contém todos os objetos do estado do reducer
-                neste caso, esta sendo feito uma busca do indice pelo id do produto
-                */
-               console.log('entrou na action')
-                const productIndex = draft.findIndex(product => product.id === data.id)
-
-                //Se ja existir o produto dentro deste estado, a quantidade [amount] é incrementada
-                if(productIndex >= 0)
-                    draft[productIndex].amount += 1
-                else    //caso contrário, o item é adicionado ao estado incluindo um atributo novo [amount = 1]
-                    draft.push({
-                        ...data,
-                        amount: 1
-                    })
+                draft.push(data)
             })
+        // return produce(state, draft => {
+        //     /* 
+        //     [draft] contém todos os objetos do estado do reducer
+        //     neste caso, esta sendo feito uma busca do indice pelo id do produto
+        //     */
+        //    console.log('entrou na action')
+        //     const productIndex = draft.findIndex(product => product.id === data.id)
+
+        //     //Se ja existir o produto dentro deste estado, a quantidade [amount] é incrementada
+        //     if(productIndex >= 0)
+        //         draft[productIndex].amount += 1
+        //     else    //caso contrário, o item é adicionado ao estado incluindo um atributo novo [amount = 1]
+        //         draft.push({
+        //             ...data,
+        //             amount: 1
+        //         })
+        // })
         case 'REMOVE_FROM_CART':
             return produce(state, draft => {
                 //Neste caso, [data] já é o próprio id do produto
                 const productIndex = draft.findIndex(product => product.id === data)
 
-                if(productIndex >= 0)
+                if (productIndex >= 0)
                     draft.splice(productIndex, 1)
             })
 
-        case 'UPDATE_AMOUNT': {
+        case 'UPDATE_AMOUNT_SUCCESS': {
             //Se a quantidade do carrinho for 1, o item não é decrementado
-            if(data.amount <= 0)
-                return state
-            else
-                return produce(state, draft => {
-                    const productIndex = draft.findIndex(product => product.id === data.productId)
+            return produce(state, draft => {
+                const productIndex = draft.findIndex(product => product.id === data.productId)
 
-                    if(productIndex >= 0)
-                        draft[productIndex].amount = Number(data.amount)
-                })
+                if (productIndex >= 0)
+                    draft[productIndex].amount = Number(data.amount)
+            })
         }
         default:
             return state
@@ -83,7 +83,12 @@ export const removeFromCart = productId => ({
     data: productId
 })
 
-export const updateAmount = (productId, amount) => ({
-    type: 'UPDATE_AMOUNT',
+export const updateAmountRequest = (productId, amount) => ({
+    type: 'UPDATE_AMOUNT_REQUEST',
+    data: { productId, amount }
+})
+
+export const updateAmountSuccess = (productId, amount) => ({
+    type: 'UPDATE_AMOUNT_SUCCESS',
     data: { productId, amount }
 })
